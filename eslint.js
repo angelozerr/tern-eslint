@@ -1,9 +1,9 @@
 (function(mod) {
   if (typeof exports == "object" && typeof module == "object") { // CommonJS
-    return mod(require.main.require("../lib/infer"), require.main.require("../lib/tern"));
+    return mod(require("tern/lib/infer"), require("tern/lib/tern"), require("eslint/lib/eslint"));
   }
   if (typeof define == "function" && define.amd) // AMD
-    return define([ "tern/lib/infer", "tern/lib/tern" ], mod);
+    return define([ "tern/lib/infer", "tern/lib/tern", "eslint/lib/eslint" ], mod);
   mod(tern, tern, eslint);
 })(function(infer, tern, eslint) {
   "use strict";
@@ -175,12 +175,12 @@
       if (node && node.range) {
         return from ? node.range[0] : node.range[1];
       }      
-      var line = error.line-1, ch = from ? error.column : error.column+1;
+      var line = error.line-1, ch = from ? error.column -2 : error.column -1;
       if (error.node && error.node.loc) {
         line = from ? error.node.loc.start.line -1 : error.node.loc.end.line -1;
         ch = from ? error.node.loc.start.column : error.node.loc.end.column;
       }
-      return {line: line, ch: ch};
+      return tern.resolvePos(file, {line: line, ch: ch});
     }
     
     function getSeverity(error) {
@@ -193,37 +193,58 @@
           return "error";
       }    
     }
-          	  
-	  function makeError(message) {
-	    var from = getPos(message, true), to = getPos(message, false);
-	    //var q = from.line ? {lineCharPositions: true} : {}; 
-	    var error = {
-	      message: message.message,
-	      severity: getSeverity(message),
-	      from: tern.outputPos(query, file, from),
-	      to: tern.outputPos(query, file, to)	      
-	    }
-	    if (!query.groupByFiles) error.file = file.name;
-	    return error;
+
+	function makeError(message) {
+	  var from = getPos(message, true), to = getPos(message, false);
+	  //var q = from.line ? {lineCharPositions: true} : {}; 
+	  var error = {
+	    message: message.message,
+	    severity: getSeverity(message),
+	    from: tern.outputPos(query, file, from),
+	    to: tern.outputPos(query, file, to)	      
 	  }
+	  if (!query.groupByFiles) error.file = file.name;
+	  return error;
+	}
 
-	  //clear all existing settings for a new file
-	  eslint.reset();
+	//clear all existing settings for a new file
+	eslint.reset();
 
-	  var config = defaultConfig, text = file.text;
-	  var errors = eslint.verify(text, config, file.name);
-	  for (var i = 0; i < errors.length; i++) {	    
-	    messages.push(makeError(errors[i]));	
-	  }
-
+	var config = defaultConfig, text = file.text;
+	var errors = eslint.verify(text, config, file.name);
+	for (var i = 0; i < errors.length; i++) {	    
+	  messages.push(makeError(errors[i]));	
+	}
   }
   
   tern.defineQueryType("eslint", {
     takesFile: true,
-    run: function(server, query, file) {    	      	  
-      var messages = [];
-      validate(server, query, file, messages);
-      return {messages: messages};    
+    run: function(server, query, file) {
+      try {
+        var messages = [];
+        validate(server, query, file, messages);
+        return {messages: messages};
+      } catch(err) {
+        console.error(err.stack);
+        return {messages: []};
+      }        
+    }
+  });
+  
+  tern.defineQueryType("eslint-full", {
+    run: function(server, query) {
+      try {
+        var messages = [], files = server.files, groupByFiles = query.groupByFiles == true;
+        for (var i = 0; i < files.length; ++i) {
+          var messagesFile = groupByFiles ? [] : messages, file = files[i];
+          validate(server, query, file, messagesFile);
+          if (groupByFiles) messages.push({file:file.name, messages: messagesFile});
+        }        
+        return {messages: messages};
+      } catch(err) {
+        console.error(err.stack);
+        return {messages: []};
+      }
     }
   });
   
