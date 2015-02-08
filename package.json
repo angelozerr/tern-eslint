@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "main": "eslint.js",
   "author": "Angelo ZERR <angelo.zerr@gmail.com>",
-  "description": "A Tern plugin linter with ESLint.",
+  "description": "Tern Plugin to validate JS files with ESLint.",
   "repository": {
     "type": "git",
     "url": "git://github.com/angelozerr/tern-eslint.git"
