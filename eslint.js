@@ -197,7 +197,10 @@
   }
   
   tern.registerPlugin("eslint", function(server, options) {
-
+    server.mod.eslint = {
+      config: options.config,
+      configFile: options.configFile,
+    }
   });
   
   function validate(server, query, file, messages) {
@@ -214,6 +217,21 @@
         ch = from ? error.node.loc.start.column : error.node.loc.end.column;
       }
       return tern.resolvePos(file, {line: line, ch: ch});
+    }
+    
+    function normPath(name) { return name.replace(/\\/g, "/"); }
+    
+    function loadConfig(file) {
+      var filepath = normPath(server.options.projectDir) + "/" + normPath(file);
+      var config = cli.loadConfig(filepath);
+      return config;
+    }
+    
+    function getConfig() {
+      var eslint = server.mod.eslint;
+      if (eslint.config) return eslint.config;
+      if (eslint.configFile) return loadConfig(eslint.configFile);
+      return defaultConfig;
     }
     
     function getSeverity(error) {
@@ -243,7 +261,7 @@
 	//clear all existing settings for a new file
 	eslint.reset();
 
-	var config = defaultConfig, text = file.text;
+	var config = getConfig(), text = file.text;
 	var errors = eslint.verify(text, config, file.name);
 	for (var i = 0; i < errors.length; i++) {	    
 	  messages.push(makeError(errors[i]));	
