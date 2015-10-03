@@ -2,21 +2,20 @@
 
 <title>CodeMirror: Tern Demo</title>
 <meta charset="utf-8"/>
-<link rel=stylesheet href="resources/codemirror/doc/docs.css">
 
 <!-- CodeMirror -->
-    <link rel="stylesheet" href="resources/codemirror/lib/codemirror.css">
-    <script src="resources/codemirror/lib/codemirror.js"></script>
-    <link rel="stylesheet" href="resources/codemirror/theme/eclipse.css">
-    <script src="resources/codemirror/addon/edit/closetag.js"></script>
-    <script src="resources/codemirror/addon/edit/closebrackets.js"></script>    
-    <script src="resources/codemirror/addon/edit/matchbrackets.js"></script>
-    <script src="resources/codemirror/addon/selection/active-line.js"></script>
-    <script src="resources/codemirror/addon/runmode/runmode.js"></script>
-    <script src="resources/codemirror/mode/javascript/javascript.js"></script>    
+    <link rel="stylesheet" href="../node_modules/codemirror/lib/codemirror.css">
+    <script src="../node_modules/codemirror/lib/codemirror.js"></script>
+    <link rel="stylesheet" href="../node_modules/codemirror/theme/eclipse.css">
+    <script src="../node_modules/codemirror/addon/edit/closetag.js"></script>
+    <script src="../node_modules/codemirror/addon/edit/closebrackets.js"></script>    
+    <script src="../node_modules/codemirror/addon/edit/matchbrackets.js"></script>
+    <script src="../node_modules/codemirror/addon/selection/active-line.js"></script>
+    <script src="../node_modules/codemirror/addon/runmode/runmode.js"></script>
+    <script src="../node_modules/codemirror/mode/javascript/javascript.js"></script>    
 
-    <script src="resources/codemirror/addon/lint/lint.js"></script>
-    <link rel="stylesheet" href="resources/codemirror/addon/lint/lint.css">
+    <script src="../node_modules/codemirror/addon/lint/lint.js"></script>
+    <link rel="stylesheet" href="../node_modules/codemirror/addon/lint/lint.css">
 
 
 <script>
@@ -26,29 +25,29 @@ CodeMirror.tern.addDef = function(def) {
 	defs.push(def);
 }
 </script>
-    <script src="resources/codemirror-javascript/addon/hint/tern/defs/ecma5.json.js"></script>    
-    <script src="resources/codemirror-javascript/addon/hint/tern/defs/browser.json.js"></script>
+    <script src="../node_modules/codemirror-javascript/demo/defs/ecma5.json.js"></script>    
+    <script src="../node_modules/codemirror-javascript/demo/defs/browser.json.js"></script>
         
   <!-- Tern JS -->
-  <script src="resources/ternjs/acorn/acorn.js"></script>
-  <script src="	resources/ternjs/acorn/acorn_loose.js"></script>
-  <script src="resources/ternjs/acorn/util/walk.js"></script>
-  <script src="resources/ternjs/tern/lib/signal.js"></script>
-  <script src="resources/ternjs/tern/lib/tern.js"></script>
-  <script src="resources/ternjs/tern/lib/def.js"></script>
-  <script src="resources/ternjs/tern/lib/comment.js"></script>
-  <script src="resources/ternjs/tern/lib/infer.js"></script>
-  <script src="resources/ternjs/tern/plugin/requirejs.js"></script>
+  <script src="../node_modules/tern/node_modules/acorn/dist/acorn.js"></script>
+  <script src="	../node_modules/tern/node_modules/acorn/dist/acorn_loose.js"></script>
+  <script src="../node_modules/tern/node_modules/acorn/dist/walk.js"></script>
+  <script src="../node_modules/tern/lib/signal.js"></script>
+  <script src="../node_modules/tern/lib/tern.js"></script>
+  <script src="../node_modules/tern/lib/def.js"></script>
+  <script src="../node_modules/tern/lib/comment.js"></script>
+  <script src="../node_modules/tern/lib/infer.js"></script>
+  <script src="../node_modules/tern/plugin/requirejs.js"></script>
   
   <!-- Official CodeMirror Tern addon -->
-  <script src="resources/codemirror/addon/tern/tern.js"></script>   
+  <script src="../node_modules/codemirror/addon/tern/tern.js"></script>   
   
-<link rel="stylesheet" href="resources/codemirror/addon/dialog/dialog.css">
-<link rel="stylesheet" href="resources/codemirror/addon/hint/show-hint.css">
-<link rel="stylesheet" href="resources/codemirror/addon/tern/tern.css">
-<script src="resources/codemirror/addon/dialog/dialog.js"></script>
-<script src="resources/codemirror/addon/hint/show-hint.js"></script>
-<script src="resources/codemirror/addon/tern/tern.js"></script>
+<link rel="stylesheet" href="../node_modules/codemirror/addon/dialog/dialog.css">
+<link rel="stylesheet" href="../node_modules/codemirror/addon/hint/show-hint.css">
+<link rel="stylesheet" href="../node_modules/codemirror/addon/tern/tern.css">
+<script src="../node_modules/codemirror/addon/dialog/dialog.js"></script>
+<script src="../node_modules/codemirror/addon/hint/show-hint.js"></script>
+<script src="../node_modules/codemirror/addon/tern/tern.js"></script>
 
 <!--  Tern Eslint Lint -->
   <script src="resources/eslint/eslint.js"></script>
@@ -58,21 +57,9 @@ CodeMirror.tern.addDef = function(def) {
 <style>
       .CodeMirror {border: 1px solid #ddd;}
     </style>
-<div id=nav>
-  <a href="http://codemirror.net"><img id=logo src="resources/codemirror/doc/logo.png"></a>
-
-  <ul>
-    <li><a href="../index.html">Home</a>
-    <li><a href="../doc/manual.html">Manual</a>
-    <li><a href="https://github.com/marijnh/codemirror">Code</a>
-  </ul>
-  <ul>
-    <li><a class=active href="#">Tern</a>
-  </ul>
-</div>
 
 <article>
-<h2>Tern Lint Demo</h2>
+<h2>Tern ESLint Demo</h2>
 <form><textarea id="code" name="code">
 define(function() {
   return {
@@ -1384,7 +1371,7 @@ and CodeMirror. The following keys are bound:</p>
 </dl>
 
 <p>Documentation is sparse for now. See the top of
-the <a href="resources/codemirror/addon/tern/tern.js">script</a> for a rough API
+the <a href="../node_modules/codemirror/addon/tern/tern.js">script</a> for a rough API
 overview.</p>
 
 <script>
