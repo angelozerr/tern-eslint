@@ -29,11 +29,8 @@
           "no-div-regex": 0,
           "no-dupe-class-members": 0,
           "no-dupe-keys": 2,
-          "no-dupe-args": 2,
-          "no-duplicate-case": 2,
           "no-else-return": 0,
           "no-empty": 2,
-          "no-empty-character-class": 2,
           "no-empty-label": 0,
           "no-eq-null": 0,
           "no-eval": 0,
@@ -126,7 +123,6 @@
           "brace-style": [0, "1tbs"],
           "callback-return": 0,
           "camelcase": 0,
-          "comma-dangle": [2, "never"],
           "comma-spacing": 0,
           "comma-style": 0,
           "complexity": [0, 11],
@@ -211,7 +207,8 @@
       if (node && node.range) {
         return from ? node.range[0] : node.range[1];
       }      
-      var line = error.line-1, ch = from ? error.column -2 : error.column -1;
+      var line = error.line-1, ch = from ? error.column - 2 : error.column - 1;
+      if (ch < 0) ch = 0;
       if (error.node && error.node.loc) {
         line = from ? error.node.loc.start.line -1 : error.node.loc.end.line -1;
         ch = from ? error.node.loc.start.column : error.node.loc.end.column;

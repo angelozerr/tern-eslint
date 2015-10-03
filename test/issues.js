@@ -1,14 +1,14 @@
 var util = require("./util");
 
-exports['test Invalid Argument'] = function() {
+exports['test issue3'] = function() {
   
   // Unknown argument => throw error widh Unknown identifier
-  util.assertLint("var arr;", {
+  util.assertLint("import", {
           messages : [{
-            "message" : "\"arr\" is defined but never used",
+            "message" : "Parsing error: Illegal import declaration",
             "severity" : "error",
-            "from" : 3,
-            "to" : 4,            
+            "from" : 0,
+            "to" : 1,            
             "file": "test1.js"}
           ]
   }, [ "browser" ]); 
