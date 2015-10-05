@@ -7,8 +7,8 @@ exports['test issue3'] = function() {
           messages : [{
             "message" : "Parsing error: Illegal import declaration",
             "severity" : "error",
-            "from" : 0,
-            "to" : 1,            
+            "from" : 1,
+            "to" : 2,            
             "file": "test1.js"}
           ]
   }, [ "browser" ]); 
