@@ -196,6 +196,9 @@
       }
   }
   
+  var eslintConfig = null;
+  if (require) try {eslintConfig = require("eslint/lib/config");} catch(e) {};
+  
   tern.registerPlugin("eslint", function(server, options) {
     server.mod.eslint = {
       config: options.config,
@@ -211,20 +214,26 @@
         return from ? node.range[0] : node.range[1];
       }      
       var line = error.line-1, ch = from ? error.column - 2 : error.column - 1;
-      if (ch < 0) ch = 0;
       if (error.node && error.node.loc) {
         line = from ? error.node.loc.start.line -1 : error.node.loc.end.line -1;
         ch = from ? error.node.loc.start.column : error.node.loc.end.column;
       }
+      // adjust ch
+      if (from) {
+        if (ch < 1) ch = 0;
+        else if (ch >= file.text.length) ch = file.text.length - 1; 
+      } else {
+        if (ch < 2) ch = 1;
+        else if (ch >= file.text.length) ch = file.text.length;
+      }        
       return tern.resolvePos(file, {line: line, ch: ch});
     }
-    
-    function normPath(name) { return name.replace(/\\/g, "/"); }
-    
+        
     function loadConfig(file) {
-      var filepath = normPath(server.options.projectDir) + "/" + normPath(file);
-      var config = cli.loadConfig(filepath);
-      return config;
+      var options = {
+        configFile: file
+      }
+      return new eslintConfig.Config(options);
     }
     
     function getConfig() {
@@ -246,8 +255,7 @@
     }
 
 	function makeError(message) {
-	  var from = getPos(message, true), to = getPos(message, false);
-	  //var q = from.line ? {lineCharPositions: true} : {}; 
+	  var from = getPos(message, true), to = getPos(message, false); 
 	  var error = {
 	    message: message.message,
 	    severity: getSeverity(message),
