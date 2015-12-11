@@ -10,6 +10,7 @@
     "url": "git://github.com/angelozerr/tern-eslint.git"
   },
   "scripts": {
+  	"publish": "node ./scripts/git-tag.js",
     "test": "node ./test/all.js"
   },    
   "dependencies": {
