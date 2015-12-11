@@ -8,7 +8,8 @@ exports['test never used'] = function() {
             "message" : "\"arr\" is defined but never used",
             "severity" : "error",
             "from" : 4,
-            "to" : 5,            
+            "to" : 5,
+            "id": "no-unused-vars",
             "file": "test1.js"}
           ]
   }, [ "browser" ]); 
