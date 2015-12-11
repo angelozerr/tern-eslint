@@ -206,22 +206,7 @@
       }
   }
   
-  function normPath(name) { return name.replace(/\\/g, "/"); }
-  
-  function loadConfig(file, server) {
-    var Config = require("eslint/lib/config");
-    try {
-      // try to load eslint.json hosted inside project
-      var filePath = normPath(server.options.projectDir) + "/" + normPath(file);
-      return new Config({configFile: filePath}).getConfig(filePath);
-    } catch (e) {
-    	console.error(e);
-    }
-    // try to load eslint.json hosted anywhere in the file system.
-    var filePath = normPath(file);
-    return new Config({configFile: filePath}).getConfig(filePath);
-  }
-  
+
   function isEmpty( obj ) { 
     for ( var prop in obj ) { 
       return false; 
@@ -229,20 +214,45 @@
     return true; 
   }
   
-  function getConfig(server, options) {
-    if (options.config && !isEmpty(options.config)) return options.config;
-    if (options.configFile) {
-      var config = loadConfig(options.configFile, server);
-      loadPlugins(config.plugins);
-      return config;
+  function normPath(name) { return name.replace(/\\/g, "/"); }
+  
+  function ESLintConfig(server, options) {
+    if (options.config && !isEmpty(options.config)) {
+      // ESLint config is stored in the .tern-project
+      this.config = options.config;
+    } else if (options.configFile) {
+      // ESLint config is stored in a eslint.json config file.
+      var fs = require("fs");
+      var filepath = this.filepath = normPath(options.configFile);
+      if (!fs.existsSync(filepath)) {
+        // try if config file is hosted inside project
+        filepath = this.filepath = normPath(server.options.projectDir) + "//" + filepath;
+        if (!fs.existsSync(filepath)) {
+          throw new Error("Cannot find ESLint config file " + filepath);
+        }
+      }
+      this.update();
+    } else {
+      // Use default ESLint config
+      this.config = defaultConfig;
     }
-    return defaultConfig;
+  }
+  
+  ESLintConfig.prototype.update = function() {
+    var filepath = this.filepath;
+    if (filepath) {
+      var fs = require("fs"), mtime = fs.statSync(filepath).mtime;
+      if (this.mtime == null || (this.mtime.getTime() != mtime.getTime())) {
+        var Config = require("eslint/lib/config");        
+        this.config = new Config({configFile: filepath}).getConfig(filepath);
+        this.mtime = mtime;
+      }
+    }
   }
   
   tern.registerPlugin("eslint", function(server, options) {
-    var config = getConfig(server, options);    
     server.mod.eslint = {
-      config: config
+      config: new ESLintConfig(server, options)
     }
   });
   
@@ -329,7 +339,10 @@
 	//clear all existing settings for a new file
 	eslint.reset();
 
-	var text = file.text, config = server.mod.eslint.config;
+	var text = file.text, eslintConfig = server.mod.eslint.config;
+	// Update eslint config if needed.
+	eslintConfig.update();
+	var config = eslintConfig.config;
 	var errors = eslint.verify(text, config, file.name);
 	for (var i = 0; i < errors.length; i++) {	    
 	  messages.push(makeError(errors[i]));	
