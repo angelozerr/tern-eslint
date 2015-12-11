@@ -2,7 +2,7 @@ var util = require("./util");
 
 exports['test issue3'] = function() {
   
-  // Unknown argument => throw error widh Unknown identifier
+  // Unknown argument => throw error with Unknown identifier
   util.assertLint("import", {
           messages : [{
             "message" : "Parsing error: Illegal import declaration",

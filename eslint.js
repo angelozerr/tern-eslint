@@ -199,7 +199,6 @@
           "yoda": [0, "never"]
       }
   }
-
   
   function normPath(name) { return name.replace(/\\/g, "/"); }
   
@@ -310,6 +309,7 @@
 	    from: tern.outputPos(query, file, from),
 	    to: tern.outputPos(query, file, to)	      
 	  }
+	  if (message.ruleId) error.id = message.ruleId;
 	  if (!query.groupByFiles) error.file = file.name;
 	  return error;
 	}
