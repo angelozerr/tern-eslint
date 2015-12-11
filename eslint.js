@@ -8,14 +8,17 @@
 })(function(infer, tern, eslint) {
   "use strict";
   
+  // copied from eslint/conf/eslint.json
   var defaultConfig = {
       "parser": "espree",
       "ecmaFeatures": {},
       "rules": {
           "no-alert": 0,
           "no-array-constructor": 0,
+          "no-arrow-condition": 0,
           "no-bitwise": 0,
           "no-caller": 0,
+          "no-case-declarations": 0,
           "no-catch-shadow": 0,
           "no-class-assign": 0,
           "no-cond-assign": 2,
@@ -35,6 +38,7 @@
           "no-empty": 2,
           "no-empty-character-class": 2,
           "no-empty-label": 0,
+          "no-empty-pattern": 0,
           "no-eq-null": 0,
           "no-eval": 0,
           "no-ex-assign": 2,
@@ -116,8 +120,10 @@
           "no-var": 0,
           "no-warning-comments": [0, { "terms": ["todo", "fixme", "xxx"], "location": "start" }],
           "no-with": 0,
+          "no-magic-numbers": 0,
 
           "array-bracket-spacing": [0, "never"],
+          "arrow-body-style": [0, "as-needed"],
           "arrow-parens": 0,
           "arrow-spacing": 0,
           "accessor-pairs": 0,
@@ -202,24 +208,31 @@
   
   function normPath(name) { return name.replace(/\\/g, "/"); }
   
-  function loadConfig(file) {
-    var eslintConfig = require("eslint/lib/config");
+  function loadConfig(file, server) {
+    var Config = require("eslint/lib/config");
     try {
       // try to load eslint.json hosted inside project
       var filePath = normPath(server.options.projectDir) + "/" + normPath(file);
-      defaultConfig.configFile = filePath;
-      return new eslintConfig(defaultConfig).getConfig(filePath);
-    } catch (e) {}
+      return new Config({configFile: filePath}).getConfig(filePath);
+    } catch (e) {
+    	console.error(e);
+    }
     // try to load eslint.json hosted anywhere in the file system.
     var filePath = normPath(file);
-    defaultConfig.configFile = filePath;
-    return new eslintConfig(defaultConfig).getConfig(filePath);
+    return new Config({configFile: filePath}).getConfig(filePath);
+  }
+  
+  function isEmpty( obj ) { 
+    for ( var prop in obj ) { 
+      return false; 
+    } 
+    return true; 
   }
   
   function getConfig(server, options) {
-    if (options.config) return options.config;
+    if (options.config && !isEmpty(options.config)) return options.config;
     if (options.configFile) {
-      var config = loadConfig(options.configFile);
+      var config = loadConfig(options.configFile, server);
       loadPlugins(config.plugins);
       return config;
     }
@@ -232,7 +245,6 @@
       config: config
     }
   });
-  
   
   // copied from eslint\lib\cli-engine.js
   var loadedPlugins = Object.create(null);
