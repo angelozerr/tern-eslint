@@ -9,6 +9,7 @@ exports['test never used'] = function() {
             "severity" : "error",
             "from" : 4,
             "to" : 5,
+            "lineNumber": 1,
             "id": "no-unused-vars",
             "file": "test1.js"}
           ]
@@ -23,7 +24,8 @@ exports['test var'] = function() {
             "message" : "Parsing error: Unexpected end of input",
             "severity" : "error",
             "from" : 2,
-            "to" : 3,            
+            "to" : 3,
+            "lineNumber": 1,
             "file": "test1.js"}
           ]
   }, [ "browser" ]); 
@@ -38,7 +40,8 @@ exports['test import'] = function() {
             "message" : "Parsing error: Illegal import declaration",
             "severity" : "error",
             "from" : 1,
-            "to" : 2,            
+            "to" : 2,
+            "lineNumber": 1,
             "file": "test1.js"}
           ]
   }, [ "browser" ]); 
