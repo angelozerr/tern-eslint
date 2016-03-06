@@ -5,7 +5,7 @@ exports['test never used'] = function() {
   // never used
   util.assertLint("var arr;", {
           messages : [{
-            "message" : "\"arr\" is defined but never used",
+            "message" : "'arr' is defined but never used",
             "severity" : "error",
             "from" : 4,
             "to" : 7,
@@ -21,7 +21,7 @@ exports['test var'] = function() {
   
   util.assertLint("var", {
           messages : [{
-            "message" : "Parsing error: Unexpected end of input",
+            "message" : "Parsing error: Unexpected token",
             "severity" : "error",
             "from" : 2,
             "to" : 3,
@@ -37,10 +37,10 @@ exports['test import'] = function() {
   // never used
   util.assertLint("import", {
           messages : [{
-            "message" : "Parsing error: Illegal import declaration",
+            "message" : "Parsing error: The keyword 'import' is reserved",
             "severity" : "error",
-            "from" : 1,
-            "to" : 2,
+            "from" : 0,
+            "to" : 1,
             "lineNumber": 1,
             "file": "test1.js"}
           ]

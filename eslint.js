@@ -366,8 +366,10 @@
 	    lineNumber: message.line
 	  }
 	  if (message.ruleId) error.id = message.ruleId;
-	  var fix = makeFix(message);
-	  if (fix) error.fix = fix;
+	  if (query.fix) {
+	    var fix = makeFix(message);
+	    if (fix) error.fix = fix;
+	  }
 	  if (!query.groupByFiles) error.file = file.name;
 	  return error;
 	}

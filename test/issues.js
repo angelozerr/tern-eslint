@@ -5,10 +5,10 @@ exports['test issue3'] = function() {
   // Unknown argument => throw error with Unknown identifier
   util.assertLint("import", {
           messages : [{
-            "message" : "Parsing error: Illegal import declaration",
+            "message" : "Parsing error: The keyword 'import' is reserved",
             "severity" : "error",
-            "from" : 1,
-            "to" : 2,
+            "from" : 0,
+            "to" : 1,
             "lineNumber": 1,
             "file": "test1.js"}
           ]
