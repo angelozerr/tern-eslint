@@ -49,7 +49,8 @@ exports.assertLint = function(text, expected, defNames, options) {
   server.request({
     query : {
       type : "eslint",
-      file : "test1.js"
+      file : "test1.js",
+      fix: true
     }
   }, function(err, resp) {
     assertLintReponse(err, resp, expected);
