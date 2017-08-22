@@ -21,7 +21,7 @@ exports['test issue11'] = function() {
   // Unknown argument => throw error with Unknown identifier
   util.assertLint("var a = 10;\n a = 2;", {
           messages : [{
-            "message" : "Expected indentation of 0 space characters but found 1.",
+            "message" : "Expected indentation of 0 spaces but found 1.",
             "severity" : "warning",
             "from" : 13,
             "to" : 19,

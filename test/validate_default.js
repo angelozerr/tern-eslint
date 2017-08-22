@@ -5,7 +5,7 @@ exports['test never used'] = function() {
   // never used
   util.assertLint("var arr;", {
           messages : [{
-            "message" : "'arr' is defined but never used",
+            "message" : "'arr' is defined but never used.",
             "severity" : "error",
             "from" : 4,
             "to" : 7,
