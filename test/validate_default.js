@@ -48,7 +48,7 @@ exports['test import'] = function() {
   
 }
 
-exports['test eslint-recommended'] = function () {
+exports['test eslint-recommended v3.0'] = function () {
 
   // require-yield was added to eslint-recommended in v3.0
   util.assertLint("/*eslint-env es6*/ (function* foo() { return 10; })()", {
@@ -65,4 +65,20 @@ exports['test eslint-recommended'] = function () {
 
   }
 
+exports['test eslint-recommended v4.0'] = function () {
+
+  // no-useless-escape was added to eslint-recommended in v4.0
+  util.assertLint("'\\#';", {
+          messages : [{
+            "message" : "Unnecessary escape character: \\#.",
+            "severity" : "error",
+            "from" : 1,
+            "to" : 2,
+            "lineNumber" : 1,
+            "id" : "no-useless-escape",
+            "file" : "test1.js"}
+          ]
+  }, [ "browser" ]);
+
+  }
 if (module == require.main) require('test').run(exports)
