@@ -1,6 +1,6 @@
 (function(mod) {
   if (typeof exports == "object" && typeof module == "object") { // CommonJS
-    return mod(require("tern/lib/infer"), require("tern/lib/tern"), require("eslint/lib/eslint"));
+    return mod(require("tern/lib/infer"), require("tern/lib/tern"), require("eslint/lib/linter"));
   }
   if (typeof define == "function" && define.amd) // AMD
     return define([ "tern/lib/infer", "tern/lib/tern", "eslint/lib/eslint" ], mod);
@@ -262,21 +262,7 @@
         "yoda": "off"
     }
   };
-  
-  // Hack for collecting node location by waiting for fix https://github.com/eslint/eslint/issues/3307
-  function getMessageId(ruleId, severity, line, column) {
-    return ruleId + "_" + severity + "_" + line + "_" + column;
-  }
 
-  var report = eslint.report;  
-  eslint.report = function(ruleId, severity, node, location, message, opts, fix, meta) {    
-    report(ruleId, severity, node, location, message, opts, fix, meta);
-    if (typeof location === "string") {
-      location = node.loc.start;
-    }
-    if (node && node.loc.start == location) this.messages_loc[getMessageId(ruleId, severity, location.line, location.column + 1)] = node;
-  }  
-  
   function isEmpty( obj ) {for ( var prop in obj ) {return false;} return true;}
   
   function normPath(name) { return name.replace(/\\/g, "/"); }
@@ -357,14 +343,16 @@
   function validate(server, query, file, messages) {
 
     function getPos(error, from) {
-      var node = error.node;
-      if (node && node.range) {
-        return from ? node.range[0] : node.range[1];
-      }      
-      var line = error.line - 1, ch = from ? error.column - 1 : error.column;
-      if (node && node.loc) {
-        line = from ? node.loc.start.line - 1 : node.loc.end.line - 1;
-        ch = from ? node.loc.start.column : node.loc.end.column;
+      var line = error.line - 1, ch;
+      if (from) {
+        ch = error.column - 1;
+      } else {
+        if ('endLine' in error && 'endColumn' in error) {
+          line = error.endLine - 1;
+          ch = error.endColumn - 1;
+        } else {
+          ch = error.column;
+        }
       }
       // adjust ch
       if (from) {
@@ -403,12 +391,6 @@
     }
     
 	function makeError(message) {
-	  if (!message.node) {
-        // ESLint message doesn't contains node information (see https://github.com/eslint/eslint/issues/3307)
-	    // try to retrieve if from messages_loc
-	    var node = eslint.messages_loc[getMessageId(message.ruleId, message.severity, message.line, message.column)];
-	    if (node) message.node = node;
-	  }
 	  var from = getPos(message, true), to = getPos(message, false);
 	  if (from == to) {
 	    if (from == 0 && file.text.length >=1) to = 1;
@@ -431,14 +413,13 @@
 	}
 
 	// clear all existing settings for a new file
-	eslint.reset();
-	eslint.messages_loc = [];
+	var linter = new eslint();
 	
 	var text = file.text, eslintConfig = server.mod.eslint.config;
 	// Update eslint config if needed.
 	eslintConfig.update();
 	var config = eslintConfig.config;
-	var errors = eslint.verify(text, config, file.name);
+	var errors = linter.verify(text, config, file.name);
 	for (var i = 0; i < errors.length; i++) {	    
 	  messages.push(makeError(errors[i]));	
 	}
