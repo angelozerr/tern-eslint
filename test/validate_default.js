@@ -5,7 +5,7 @@ exports['test never used'] = function() {
   // never used
   util.assertLint("var arr;", {
           messages : [{
-            "message" : "'arr' is defined but never used",
+            "message" : "'arr' is defined but never used.",
             "severity" : "error",
             "from" : 4,
             "to" : 7,
@@ -47,5 +47,22 @@ exports['test import'] = function() {
   }, [ "browser" ]); 
   
 }
+
+exports['test eslint-recommended'] = function () {
+
+  // require-yield was added to eslint-recommended in v3.0
+  util.assertLint("/*eslint-env es6*/ (function* foo() { return 10; })()", {
+          messages : [{
+            "message" : "This generator function does not have 'yield'.",
+            "severity" : "error",
+            "from" : 20,
+            "to" : 50,
+            "lineNumber" : 1,
+            "id" : "require-yield",
+            "file" : "test1.js"}
+          ]
+  }, [ "browser" ]);
+
+  }
 
 if (module == require.main) require('test').run(exports)
