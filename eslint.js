@@ -1,6 +1,6 @@
 (function(mod) {
   if (typeof exports == "object" && typeof module == "object") { // CommonJS
-    return mod(require("tern/lib/infer"), require("tern/lib/tern"), require("eslint/lib/eslint"));
+    return mod(require("tern/lib/infer"), require("tern/lib/tern"), require("eslint/lib/linter"));
   }
   if (typeof define == "function" && define.amd) // AMD
     return define([ "tern/lib/infer", "tern/lib/tern", "eslint/lib/eslint" ], mod);
@@ -10,15 +10,12 @@
   
   // copied from eslint/conf/eslint-recommended.js
   var defaultConfig = {
-    parser: "espree",
-    ecmaFeatures: {},
-
     rules: {
-
-        /* eslint-enable sort-keys */
         "accessor-pairs": "off",
+        "array-bracket-newline": "off",
         "array-bracket-spacing": "off",
         "array-callback-return": "off",
+        "array-element-newline": "off",
         "arrow-body-style": "off",
         "arrow-parens": "off",
         "arrow-spacing": "off",
@@ -26,35 +23,38 @@
         "block-spacing": "off",
         "brace-style": "off",
         "callback-return": "off",
-        "camelcase": "off",
+        camelcase: "off",
         "capitalized-comments": "off",
         "class-methods-use-this": "off",
         "comma-dangle": "off",
         "comma-spacing": "off",
         "comma-style": "off",
-        "complexity": "off",
+        complexity: "off",
         "computed-property-spacing": "off",
         "consistent-return": "off",
         "consistent-this": "off",
         "constructor-super": "error",
-        "curly": "off",
+        curly: "off",
         "default-case": "off",
         "dot-location": "off",
         "dot-notation": "off",
         "eol-last": "off",
-        "eqeqeq": "off",
+        eqeqeq: "off",
+        "for-direction": "off",
         "func-call-spacing": "off",
         "func-name-matching": "off",
         "func-names": "off",
         "func-style": "off",
         "generator-star-spacing": "off",
+        "getter-return": "off",
         "global-require": "off",
         "guard-for-in": "off",
         "handle-callback-err": "off",
         "id-blacklist": "off",
         "id-length": "off",
         "id-match": "off",
-        "indent": "off",
+        indent: "off",
+        "indent-legacy": "off",
         "init-declarations": "off",
         "jsx-quotes": "off",
         "key-spacing": "off",
@@ -80,11 +80,12 @@
         "no-array-constructor": "off",
         "no-await-in-loop": "off",
         "no-bitwise": "off",
+        "no-buffer-constructor": "off",
         "no-caller": "off",
         "no-case-declarations": "error",
         "no-catch-shadow": "off",
         "no-class-assign": "error",
-        "no-compare-neg-zero": "off",
+        "no-compare-neg-zero": "error",
         "no-cond-assign": "error",
         "no-confusing-arrow": "off",
         "no-console": "error",
@@ -202,7 +203,7 @@
         "no-useless-computed-key": "off",
         "no-useless-concat": "off",
         "no-useless-constructor": "off",
-        "no-useless-escape": "off",
+        "no-useless-escape": "error",
         "no-useless-rename": "off",
         "no-useless-return": "off",
         "no-var": "off",
@@ -212,7 +213,7 @@
         "no-with": "off",
         "nonblock-statement-body-position": "off",
         "object-curly-newline": "off",
-        "object-curly-spacing": ["off", "never"],
+        "object-curly-spacing": "off",
         "object-property-newline": "off",
         "object-shorthand": "off",
         "one-var": "off",
@@ -220,6 +221,7 @@
         "operator-assignment": "off",
         "operator-linebreak": "off",
         "padded-blocks": "off",
+        "padding-line-between-statements": "off",
         "prefer-arrow-callback": "off",
         "prefer-const": "off",
         "prefer-destructuring": "off",
@@ -230,14 +232,15 @@
         "prefer-spread": "off",
         "prefer-template": "off",
         "quote-props": "off",
-        "quotes": "off",
-        "radix": "off",
+        quotes: "off",
+        radix: "off",
         "require-await": "off",
         "require-jsdoc": "off",
         "require-yield": "error",
         "rest-spread-spacing": "off",
-        "semi": "off",
+        semi: "off",
         "semi-spacing": "off",
+        "semi-style": "off",
         "sort-imports": "off",
         "sort-keys": "off",
         "sort-vars": "off",
@@ -247,7 +250,8 @@
         "space-infix-ops": "off",
         "space-unary-ops": "off",
         "spaced-comment": "off",
-        "strict": "off",
+        strict: "off",
+        "switch-colon-spacing": "off",
         "symbol-description": "off",
         "template-curly-spacing": "off",
         "template-tag-spacing": "off",
@@ -259,24 +263,10 @@
         "wrap-iife": "off",
         "wrap-regex": "off",
         "yield-star-spacing": "off",
-        "yoda": "off"
+        yoda: "off"
     }
-  };
-  
-  // Hack for collecting node location by waiting for fix https://github.com/eslint/eslint/issues/3307
-  function getMessageId(ruleId, severity, line, column) {
-    return ruleId + "_" + severity + "_" + line + "_" + column;
-  }
+};
 
-  var report = eslint.report;  
-  eslint.report = function(ruleId, severity, node, location, message, opts, fix, meta) {    
-    report(ruleId, severity, node, location, message, opts, fix, meta);
-    if (typeof location === "string") {
-      location = node.loc.start;
-    }
-    if (node && node.loc.start == location) this.messages_loc[getMessageId(ruleId, severity, location.line, location.column + 1)] = node;
-  }  
-  
   function isEmpty( obj ) {for ( var prop in obj ) {return false;} return true;}
   
   function normPath(name) { return name.replace(/\\/g, "/"); }
@@ -357,14 +347,16 @@
   function validate(server, query, file, messages) {
 
     function getPos(error, from) {
-      var node = error.node;
-      if (node && node.range) {
-        return from ? node.range[0] : node.range[1];
-      }      
-      var line = error.line - 1, ch = from ? error.column - 1 : error.column;
-      if (node && node.loc) {
-        line = from ? node.loc.start.line - 1 : node.loc.end.line - 1;
-        ch = from ? node.loc.start.column : node.loc.end.column;
+      var line = error.line - 1, ch;
+      if (from) {
+        ch = error.column - 1;
+      } else {
+        if ('endLine' in error && 'endColumn' in error) {
+          line = error.endLine - 1;
+          ch = error.endColumn - 1;
+        } else {
+          ch = error.column;
+        }
       }
       // adjust ch
       if (from) {
@@ -403,12 +395,6 @@
     }
     
 	function makeError(message) {
-	  if (!message.node) {
-        // ESLint message doesn't contains node information (see https://github.com/eslint/eslint/issues/3307)
-	    // try to retrieve if from messages_loc
-	    var node = eslint.messages_loc[getMessageId(message.ruleId, message.severity, message.line, message.column)];
-	    if (node) message.node = node;
-	  }
 	  var from = getPos(message, true), to = getPos(message, false);
 	  if (from == to) {
 	    if (from == 0 && file.text.length >=1) to = 1;
@@ -431,14 +417,13 @@
 	}
 
 	// clear all existing settings for a new file
-	eslint.reset();
-	eslint.messages_loc = [];
+	var linter = new eslint();
 	
 	var text = file.text, eslintConfig = server.mod.eslint.config;
 	// Update eslint config if needed.
 	eslintConfig.update();
 	var config = eslintConfig.config;
-	var errors = eslint.verify(text, config, file.name);
+	var errors = linter.verify(text, config, file.name);
 	for (var i = 0; i < errors.length; i++) {	    
 	  messages.push(makeError(errors[i]));	
 	}
