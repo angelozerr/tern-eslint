@@ -23,8 +23,8 @@ exports['test issue11'] = function() {
           messages : [{
             "message" : "Expected indentation of 0 spaces but found 1.",
             "severity" : "warning",
-            "from" : 13,
-            "to" : 19,
+            "from" : 12,
+            "to" : 13,
             "lineNumber": 2,
             "id":"indent",
             "fix": {
