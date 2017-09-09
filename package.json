@@ -13,6 +13,9 @@
   	"publish": "node ./scripts/git-tag.js",
     "test": "node ./test/all.js"
   },    
+  "peerDependencies": {
+    "tern": "^0.17.0"
+  },    
   "dependencies": {
     "tern": "^0.17.0",
     "eslint": "^4.0.0"
